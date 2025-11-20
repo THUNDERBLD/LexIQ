@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Scale, Menu, Bell, User } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useLanguageStore } from '../../store/languageStore';
@@ -79,7 +80,8 @@ const Header = () => {
             </button>
 
             {/* Logo & App Name */}
-            <div className="flex items-center gap-3 margin-side">
+            <Link to="/">
+            <div className="flex items-center gap-3 margin-side mx-14">
               <div className="bg-white bg-opacity-20 rounded-lg">
                 <Scale size={32} className="text-white" />
               </div>
@@ -92,6 +94,7 @@ const Header = () => {
                 </p>
               </div>
             </div>
+            </Link>
           </div>
 
           {/* Right Section - Actions */}
@@ -136,7 +139,9 @@ const Header = () => {
               </button>
             ) : (
               <button className="hidden md:flex items-center button-spacing gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-                Login
+                <Link to="/login">
+                  Login
+                </Link>
               </button>
             )}
           </div>

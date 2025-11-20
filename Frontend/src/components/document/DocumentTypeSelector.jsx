@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Search, ChevronRight, Info } from 'lucide-react';
-import { useLanguageStore } from '../../store/languageStore';
-import Card from '../common/Card';
+
+// Mock language store
+const useLanguageStore = () => ({ language: 'en' });
 
 // Document Types Configuration
 const DOCUMENT_TYPES = [
@@ -157,37 +158,40 @@ const SELECTOR_TRANSLATIONS = {
 
 const DocumentTypeCard = ({ docType, language, onSelect, isPopular }) => {
   return (
-    <Card
-      hover
+    <div
       onClick={() => onSelect(docType)}
-      className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl relative overflow-hidden group"
+      className="cursor-pointer transition-all duration-300 hover:scale-105 relative overflow-hidden group bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-blue-500/50 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 p-6"
     >
       {/* Popular Badge */}
       {isPopular && (
-        <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
+        <div className="absolute z-50 top-3 right-3 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
           ⭐ Popular
         </div>
       )}
 
       <div className="flex flex-col items-center text-center gap-4">
-        {/* Icon */}
-        <div 
-          className={`
-            text-6xl p-6 rounded-2xl 
-            ${docType.color} bg-opacity-20 
-            transition-transform duration-200 
-            group-hover:scale-110 group-hover:rotate-6
-          `}
-        >
-          {docType.icon}
+        {/* Icon with glow effect */}
+        <div className="relative">
+          <div className={`absolute inset-0 ${docType.color} opacity-20 blur-2xl rounded-full`}></div>
+          <div 
+            className={`
+              relative text-6xl p-6 rounded-2xl 
+              ${docType.color} bg-opacity-20 
+              transition-transform duration-300 
+              group-hover:scale-110 group-hover:rotate-6
+              border border-slate-600/30
+            `}
+          >
+            {docType.icon}
+          </div>
         </div>
 
         {/* Title */}
         <div>
-          <h3 className="font-bold text-lg text-gray-800 mb-2">
+          <h3 className="font-bold text-lg text-white mb-2 group-hover:text-blue-300 transition-colors">
             {docType.name[language] || docType.name.en}
           </h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <p className="text-sm text-slate-300 leading-relaxed">
             {docType.description[language] || docType.description.en}
           </p>
         </div>
@@ -195,25 +199,26 @@ const DocumentTypeCard = ({ docType, language, onSelect, isPopular }) => {
         {/* Select Button */}
         <button
           className={`
-            w-full mt-2 py-2 px-4 rounded-lg font-semibold 
+            w-full mt-2 py-2.5 px-4 rounded-lg font-semibold 
             flex items-center justify-center gap-2
-            ${docType.color} bg-opacity-10 
-            text-gray-700 
-            group-hover:bg-opacity-100 group-hover:text-white
-            transition-all duration-200
+            bg-slate-700/50 border border-slate-600/50
+            text-slate-200
+            group-hover:bg-blue-600 group-hover:border-blue-500
+            group-hover:text-white
+            transition-all duration-300
           `}
         >
-          <span className="hidden group-hover:inline">
+          <span className="group-hover:inline">
             {SELECTOR_TRANSLATIONS[language]?.select || SELECTOR_TRANSLATIONS.en.select}
           </span>
-          <ChevronRight size={18} />
+          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
-    </Card>
+    </div>
   );
 };
 
-const DocumentTypeSelector = ({ onSelect }) => {
+const DocumentTypeSelector = ({ onSelect = () => {} }) => {
   const { language } = useLanguageStore();
   const [searchQuery, setSearchQuery] = useState('');
   const t = SELECTOR_TRANSLATIONS[language] || SELECTOR_TRANSLATIONS.en;
@@ -237,25 +242,20 @@ const DocumentTypeSelector = ({ onSelect }) => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">
-          {t.title}
-        </h2>
-        <p className="text-gray-600 text-lg">{t.subtitle}</p>
-      </div>
-
       {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-10">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={24} />
-          <input
-            type="text"
-            placeholder={t.searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none shadow-sm"
-          />
+        <div className="relative group">
+          <div className="absolute inset-0 bg-blue-500/20 rounded-xl blur-xl group-hover:bg-blue-500/30 transition-all"></div>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 z-10" size={24} />
+            <input
+              type="text"
+              placeholder={t.searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-14 pr-4 py-4 text-lg bg-slate-800/60 backdrop-blur-sm border-2 border-slate-700/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-lg text-white placeholder-slate-400 transition-all"
+            />
+          </div>
         </div>
       </div>
 
@@ -276,10 +276,10 @@ const DocumentTypeSelector = ({ onSelect }) => {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-4">
-                <Search size={48} className="text-gray-400" />
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-full mb-4">
+                <Search size={48} className="text-slate-500" />
               </div>
-              <p className="text-xl text-gray-600">No document types found</p>
+              <p className="text-xl text-slate-300">No document types found</p>
             </div>
           )}
         </div>
@@ -288,8 +288,8 @@ const DocumentTypeSelector = ({ onSelect }) => {
           {/* Popular Document Types */}
           <div className="mb-12">
             <div className="flex items-center gap-3 mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">{t.popular}</h3>
-              <Info size={20} className="text-blue-600" />
+              <h3 className="text-2xl font-bold text-white">{t.popular}</h3>
+              <Info size={20} className="text-blue-400" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {popularDocTypes.map((docType) => (
@@ -306,7 +306,7 @@ const DocumentTypeSelector = ({ onSelect }) => {
 
           {/* All Document Types */}
           <div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">{t.all}</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">{t.all}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {otherDocTypes.map((docType) => (
                 <DocumentTypeCard
@@ -322,23 +322,24 @@ const DocumentTypeSelector = ({ onSelect }) => {
       )}
 
       {/* Help Text */}
-      <div className="mt-12 text-center">
-        <Card className="max-w-2xl mx-auto bg-blue-50 border-2 border-blue-200">
-          <div className="flex items-start gap-3">
-            <Info size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+      <div className="mt-12">
+        <div className="max-w-2xl mx-auto bg-blue-900/30 backdrop-blur-sm border-2 border-blue-500/30 rounded-xl p-6 shadow-xl">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30">
+              <Info size={24} className="text-blue-400" />
+            </div>
             <div className="text-left">
-              <h4 className="font-bold text-blue-900 mb-2">Not sure which type?</h4>
-              <p className="text-sm text-blue-800">
+              <h4 className="font-bold text-blue-200 mb-2 text-lg">Not sure which type?</h4>
+              <p className="text-sm text-blue-100/80 leading-relaxed">
                 Don't worry! Select the closest match. Our AI will analyze your document and 
                 provide accurate information regardless of the category you choose.
               </p>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
 };
 
 export default DocumentTypeSelector;
-export { DOCUMENT_TYPES };

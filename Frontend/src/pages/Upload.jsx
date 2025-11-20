@@ -42,27 +42,54 @@ const Upload = ({ onNavigate }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Page Header (only show on select step) */}
-      {step === 'select' && (
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            {t.title}
-          </h1>
-          <p className="text-gray-600 text-lg">{t.subtitle}</p>
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Page Header with gradient background */}
+        {step === 'select' && (
+          <div className="text-center mb-12 relative">
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl"></div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 relative">
+              {t.title}
+            </h1>
+            <p className="text-blue-200/80 text-lg md:text-xl relative">{t.subtitle}</p>
+            
+            {/* Decorative line */}
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <div className="h-1 w-20 bg-gradient-to-r from-transparent via-blue-400 to-transparent rounded"></div>
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <div className="h-1 w-20 bg-gradient-to-r from-transparent via-blue-400 to-transparent rounded"></div>
+            </div>
+          </div>
+        )}
 
-      {/* Content */}
-      {step === 'select' ? (
-        <DocumentTypeSelector onSelect={handleTypeSelect} />
-      ) : (
-        <DocumentUpload
-          documentType={selectedDocumentType}
-          onBack={handleBack}
-          onComplete={handleUploadComplete}
-        />
-      )}
+        {/* Content with card background */}
+        <div className="relative">
+          {/* Background glow effect */}
+          <div className="absolute inset-0 bg-blue-500/5 rounded-3xl blur-xl"></div>
+          
+          {/* Main content card */}
+          <div className="relative bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl p-6 md:p-8">
+            {step === 'select' ? (
+              <DocumentTypeSelector onSelect={handleTypeSelect} />
+            ) : (
+              <DocumentUpload
+                documentType={selectedDocumentType}
+                onBack={handleBack}
+                onComplete={handleUploadComplete}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Bottom decorative elements */}
+        <div className="mt-8 flex justify-center gap-2 opacity-30">
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      </div>
     </div>
   );
 };
