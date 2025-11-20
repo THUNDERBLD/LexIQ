@@ -14,10 +14,13 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import History from './pages/History';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+
 
 // Auth Components
-import PhoneInput from './components/auth/PhoneInput';
-import OTPLogin from './components/auth/OTPLogin';
+import Login from './components/auth/Login';
+import SignUp from './components/auth/SignUp';
 
 // Chat Component (Floating)
 import ChatInterface from './components/chat/ChatInterface';
@@ -144,10 +147,6 @@ const App = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Skip to main content - Accessibility */}
-      <a href="#main-content" className="skip-to-main">
-        Skip to main content
-      </a>
 
       {/* Header */}
       {shouldShowLayout() && <Header />}
@@ -165,7 +164,7 @@ const App = () => {
           className="flex-1 overflow-auto"
           role="main"
         >
-          <div className={shouldShowLayout() ? 'p-6' : ''}>
+          <div className={shouldShowLayout() ? 'p-0' : ''}>
             {/* one of the way to render the page [we will try to use this later] (alternatively could use Routes/Route)
               {renderPage()} 
             */}
@@ -175,7 +174,11 @@ const App = () => {
               <Route path="/upload" element={<Upload onNavigate={handleNavigate} />} />
               <Route path="/analysis" element={<Analysis document={pageData} onNavigate={handleNavigate} />} />
               <Route path="/history" element={<History onNavigate={handleNavigate} />} />
-              <Route path="/history" element={<History onNavigate={handleNavigate} />} />
+              <Route path="/upload" element={<Upload onNavigate={handleNavigate} />} />
+              <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
+              <Route path="/signup" element={<SignUp onNavigate={handleNavigate} />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Routes>
           </div>
         </main>

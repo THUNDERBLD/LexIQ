@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Upload, 
   History, 
   HelpCircle, 
   Settings, 
-  X, 
   ChevronRight,
   FileText,
   BookOpen,
@@ -32,33 +32,58 @@ const SIDEBAR_TRANSLATIONS = {
     logout: 'Logout',
     login: 'Login',
   },
+  hi: {
+    home: 'होम',
+    upload: 'दस्तावेज़ अपलोड करें',
+    history: 'मेरे दस्तावेज़',
+    resources: 'कानूनी संसाधन',
+    help: 'सहायता और समर्थन',
+    settings: 'सेटिंग्स',
+    contact: 'हमसे संपर्क करें',
+    logout: 'लॉगआउट',
+    login: 'लॉगिन',
+  },
+  mr: {
+    home: 'मुख्यपृष्ठ',
+    upload: 'दस्तऐवज अपलोड करा',
+    history: 'माझे दस्तऐवज',
+    resources: 'कायदेशीर संसाधने',
+    help: 'मदत आणि समर्थन',
+    settings: 'सेटिंग्ज',
+    contact: 'आमच्याशी संपर्क साधा',
+    logout: 'लॉगआउट',
+    login: 'लॉगिन',
+  },
 };
 
-const Sidebar = ({ onNavigate = () => {} }) => {
+const Sidebar = () => {
+  const location = useLocation();
   const { isSidebarOpen, toggleSidebar } = useUIStore();
   const { language } = useLanguageStore();
   const { isAuthenticated, logout } = useAuthStore();
-  const [activePage, setActivePage] = useState('home');
   const [isExpanded, setIsExpanded] = useState(false);
   const t = SIDEBAR_TRANSLATIONS[language] || SIDEBAR_TRANSLATIONS.en;
 
   const menuItems = [
     { 
-      id: 'home', 
+      id: 'home',
+      path: '/',
       icon: Home, 
       label: t.home,
       color: 'text-blue-400',
       activeColor: 'bg-blue-500'
     },
     { 
-      id: 'upload', 
+      id: 'upload',
+      path: '/upload',
       icon: Upload, 
       label: t.upload,
       color: 'text-green-400',
       activeColor: 'bg-green-500'
     },
     { 
-      id: 'history', 
+      id: 'history',
+      path: '/history',
       icon: History, 
       label: t.history,
       color: 'text-purple-400',
@@ -66,7 +91,8 @@ const Sidebar = ({ onNavigate = () => {} }) => {
       requireAuth: true
     },
     { 
-      id: 'resources', 
+      id: 'resources',
+      path: '/resources',
       icon: BookOpen, 
       label: t.resources,
       color: 'text-orange-400',
@@ -76,21 +102,24 @@ const Sidebar = ({ onNavigate = () => {} }) => {
 
   const secondaryItems = [
     { 
-      id: 'help', 
+      id: 'help',
+      path: '/help',
       icon: HelpCircle, 
       label: t.help,
       color: 'text-slate-400',
       activeColor: 'bg-slate-600'
     },
     { 
-      id: 'contact', 
+      id: 'contact',
+      path: '/contact',
       icon: Phone, 
       label: t.contact,
       color: 'text-slate-400',
       activeColor: 'bg-slate-600'
     },
     { 
-      id: 'settings', 
+      id: 'settings',
+      path: '/settings',
       icon: Settings, 
       label: t.settings,
       color: 'text-slate-400',
@@ -99,14 +128,15 @@ const Sidebar = ({ onNavigate = () => {} }) => {
     },
   ];
 
-  const handleNavigation = (pageId) => {
-    setActivePage(pageId);
-    onNavigate(pageId);
-  };
-
   const handleLogout = () => {
     logout();
-    setActivePage('home');
+    // Optionally navigate to home after logout
+    window.location.href = '/';
+  };
+
+  // Check if current path matches the menu item
+  const isActivePath = (path) => {
+    return location.pathname === path;
   };
 
   return (
@@ -127,7 +157,7 @@ const Sidebar = ({ onNavigate = () => {} }) => {
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           lg:translate-x-0 
           transition-all duration-300 ease-in-out
-          ${isExpanded ? 'w-52' : 'w-12'} 
+          ${isExpanded ? 'w-52' : 'w-14'} 
           bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900
           shadow-2xl z-50 
           flex flex-col
@@ -139,31 +169,32 @@ const Sidebar = ({ onNavigate = () => {} }) => {
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Main Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-4">
+        <nav className="flex- overflow-y-auto py-4 px-2 space-y-1">
           {/* Primary Menu Items */}
           {menuItems.map((item) => {
             if (item.requireAuth && !isAuthenticated) return null;
             
             const Icon = item.icon;
-            const isActive = activePage === item.id;
+            const isActive = isActivePath(item.path);
 
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => handleNavigation(item.id)}
+                to={item.path}
                 className={`
-                  w-full flex items-center gap-4 p-3 rounded-xl cursor-pointer
+                  w-full flex items-center gap-4 p-3 rounded-xl
                   transition-all duration-300 group relative
                   ${isActive
-                    ? `${item.activeColor} shadow-lg shadow-${item.activeColor}/30`
+                    ? `${item.activeColor} shadow-lg`
                     : 'hover:bg-slate-700/50'
                   }
                   ${isExpanded ? '' : 'justify-center'}
                 `}
               >
                 <div className={`
-                  flex-shrink-0 transition-transform duration-300 button-spacing2
+                  flex-shrink-0 transition-transform duration-300
                   ${isActive ? 'scale-110' : 'group-hover:scale-110'}
+                  ${isExpanded ? 'ml-0' : 'ml-0'}
                 `}>
                   <Icon 
                     size={22} 
@@ -182,7 +213,7 @@ const Sidebar = ({ onNavigate = () => {} }) => {
                 {isActive && isExpanded && (
                   <ChevronRight size={16} className="text-white ml-auto" />
                 )}
-              </button>
+              </Link>
             );
           })}
 
@@ -194,15 +225,15 @@ const Sidebar = ({ onNavigate = () => {} }) => {
             if (item.requireAuth && !isAuthenticated) return null;
             
             const Icon = item.icon;
-            const isActive = activePage === item.id;
+            const isActive = isActivePath(item.path);
 
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => handleNavigation(item.id)}
+                to={item.path}
                 className={`
                   w-full flex items-center gap-4 p-3 rounded-xl
-                  transition-all duration-300 group button-spacing
+                  transition-all duration-300 group
                   ${isActive
                     ? `${item.activeColor} shadow-lg`
                     : 'hover:bg-slate-700/50'
@@ -226,13 +257,13 @@ const Sidebar = ({ onNavigate = () => {} }) => {
                 `}>
                   {item.label}
                 </span>
-              </button>
+              </Link>
             );
           })}
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-700/50">
+        <div className="p-2 pt-4 border-t border-slate-700/50">
           {isAuthenticated ? (
             <button
               onClick={handleLogout}
@@ -252,13 +283,12 @@ const Sidebar = ({ onNavigate = () => {} }) => {
               </span>
             </button>
           ) : (
-            <button
-              onClick={() => handleNavigation('login')}
+            <Link
+              to="/login"
               className={`
                 w-full flex items-center gap-4 p-3 rounded-xl
                 bg-gradient-to-r from-blue-500 to-blue-600 
                 hover:from-blue-600 hover:to-blue-700
-                button-spacing cursor-pointer
                 text-white font-medium transition-all duration-300
                 shadow-lg hover:shadow-xl hover:shadow-blue-500/30
                 group
@@ -269,7 +299,7 @@ const Sidebar = ({ onNavigate = () => {} }) => {
               <span className={`text-sm transition-all duration-300 whitespace-nowrap ${isExpanded ? 'opacity-100' : 'opacity-0 w-0'}`}>
                 {t.login}
               </span>
-            </button>
+            </Link>
           )}
           
           {/* App Version */}

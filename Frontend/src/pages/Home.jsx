@@ -142,7 +142,7 @@ const Home = ({ onNavigate = () => {} }) => {
             <p className="text-xl md:text-2xl text-blue-100 max-w-full mx-auto leading-relaxed">
               {t.hero.subtitle}
             </p>
-            <div className="flex gap-4 justify-center w-full">
+            <div className="flex gap-4 justify-center w-full mt-6">
               <Button
                 onClick={handleGetStarted}
                 icon={ChevronRight}
@@ -178,11 +178,11 @@ const Home = ({ onNavigate = () => {} }) => {
               const Icon = step.icon;
               return (
                 <Card key={index} className="icon-spacing text-center cursor-default bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 group">
-                  <div className="inline-flex icon-spacing items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <div className="inline-flex icon-spacing items-center mt-4 justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <Icon size={36} className="text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                  <p className="text-slate-300 leading-relaxed">{step.description}</p>
+                  <p className="text-slate-300 leading-relaxed mb-1">{step.description}</p>
                 </Card>
               );
             })}

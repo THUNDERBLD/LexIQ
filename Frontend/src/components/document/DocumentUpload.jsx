@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Upload, ChevronRight, ArrowLeft, FileCheck, AlertCircle } from 'lucide-react';
-import { useLanguageStore } from '../../store/languageStore';
-import { useDocumentStore } from '../../store/documentStore';
-import FileUpload from '../common/FileUpload';
-import Button from '../common/Button';
-import Card from '../common/Card';
+import { Upload, ChevronRight, ArrowLeft, FileCheck, AlertCircle, CheckCircle } from 'lucide-react';
+
+// Mock stores
+const useLanguageStore = () => ({ language: 'en' });
+const useDocumentStore = () => ({ 
+  addDocument: (doc) => console.log('Document added:', doc) 
+});
 
 // Translation object
 const UPLOAD_TRANSLATIONS = {
@@ -19,34 +20,104 @@ const UPLOAD_TRANSLATIONS = {
     analyze: 'Analyze Document',
     uploadSuccess: 'Document uploaded successfully!',
     back: 'Back to Selection',
-  },
-  hi: {
-    title: 'अपना दस्तावेज़ अपलोड करें',
-    description: 'अपने दस्तावेज़ प्रकार का चयन करें और AI विश्लेषण के लिए फ़ाइल अपलोड करें',
-    selectedType: 'दस्तावेज़ प्रकार',
-    uploadFile: 'दस्तावेज़ अपलोड करें',
-    change: 'बदलें',
-    analyzing: 'दस्तावेज़ का विश्लेषण',
-    analyzingDesc: 'हमारा AI आपके दस्तावेज़ को संसाधित कर रहा है। इसमें कुछ समय लग सकता है...',
-    analyze: 'दस्तावेज़ का विश्लेषण करें',
-    uploadSuccess: 'दस्तावेज़ सफलतापूर्वक अपलोड किया गया!',
-    back: 'चयन पर वापस जाएं',
-  },
-  mr: {
-    title: 'तुमचा दस्तऐवज अपलोड करा',
-    description: 'तुमचा दस्तऐवज प्रकार निवडा आणि AI विश्लेषणासाठी फाइल अपलोड करा',
-    selectedType: 'दस्तऐवज प्रकार',
-    uploadFile: 'दस्तऐवज अपलोड करा',
-    change: 'बदला',
-    analyzing: 'दस्तऐवज विश्लेषण',
-    analyzingDesc: 'आमचा AI तुमचा दस्तऐवज प्रक्रिया करत आहे. यास काही क्षण लागू शकतात...',
-    analyze: 'दस्तऐवज विश्लेषण करा',
-    uploadSuccess: 'दस्तऐवज यशस्वीरित्या अपलोड केला!',
-    back: 'निवडीकडे परत जा',
+    dragDrop: 'Drag and drop your file here, or',
+    browse: 'browse',
+    supportedFormats: 'Supported formats: PDF, JPG, PNG (Max 10MB)',
+    tipsTitle: 'Tips for Better Results',
+    tips: [
+      'Ensure the document is clear and readable',
+      'Upload high-quality scans or photos',
+      'Make sure all important text is visible',
+      'PDF format works best for multi-page documents'
+    ]
   },
 };
 
-const DocumentUpload = ({ documentType, onBack, onComplete }) => {
+// Mock FileUpload Component
+const FileUpload = ({ onFileSelect, acceptedFormats, maxSizeInMB }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      onFileSelect(file);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      onFileSelect(file);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        className={`
+          relative border-2 border-dashed rounded-xl p-8 text-center transition-all
+          ${isDragging 
+            ? 'border-blue-400 bg-blue-500/10' 
+            : 'border-slate-600/50 bg-slate-800/40 hover:border-blue-500/50 hover:bg-slate-800/60'
+          }
+        `}
+      >
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept={acceptedFormats}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+        
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center border-2 border-blue-500/30">
+            <Upload size={40} className="text-blue-400" />
+          </div>
+          
+          <div>
+            <p className="text-lg text-slate-200 mb-2">
+              <span className="text-slate-300">Drag and drop your file here, or </span>
+              <span className="text-blue-400 font-semibold">browse</span>
+            </p>
+            <p className="text-sm text-slate-400">
+              Supported formats: PDF, JPG, PNG (Max {maxSizeInMB}MB)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {selectedFile && (
+        <div className="flex items-center gap-3 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+          <CheckCircle size={24} className="text-green-400 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-green-200 truncate">{selectedFile.name}</p>
+            <p className="text-sm text-green-300/70">
+              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const DocumentUpload = ({ 
+  documentType = {
+    icon: '📄',
+    name: 'Document',
+    color: 'bg-blue-500'
+  }, 
+  onBack = () => {}, 
+  onComplete = () => {} 
+}) => {
   const { language } = useLanguageStore();
   const { addDocument } = useDocumentStore();
   const t = UPLOAD_TRANSLATIONS[language] || UPLOAD_TRANSLATIONS.en;
@@ -82,13 +153,12 @@ const DocumentUpload = ({ documentType, onBack, onComplete }) => {
         });
       }, 200);
 
-      // Simulate API call - Replace with actual API call
+      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      // Create document object
       const newDocument = {
         file: selectedFile,
         documentType: documentType,
@@ -98,10 +168,8 @@ const DocumentUpload = ({ documentType, onBack, onComplete }) => {
         size: selectedFile.size,
       };
 
-      // Add to store
       addDocument(newDocument);
 
-      // Wait a moment to show 100% progress
       setTimeout(() => {
         setIsUploading(false);
         onComplete && onComplete(newDocument);
@@ -118,134 +186,125 @@ const DocumentUpload = ({ documentType, onBack, onComplete }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-8">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-3 hover:bg-slate-700/50 rounded-lg transition-all border border-slate-600/30 hover:border-blue-500/50 group"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
         </button>
         <div>
-          <h2 className="text-3xl font-bold text-gray-800">{t.title}</h2>
-          <p className="text-gray-600 mt-1">{t.description}</p>
+          <h2 className="text-3xl font-bold text-white">{t.title}</h2>
+          <p className="text-blue-200/70 mt-1">{t.description}</p>
         </div>
       </div>
 
       {/* Selected Document Type Display */}
-      <Card className="border-2 border-blue-200 bg-blue-50">
-        <div className="flex items-center justify-between">
+      <div className="border-2 border-blue-500/30 bg-blue-900/20 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <div className={`text-5xl p-3 rounded-xl ${documentType.color} bg-opacity-20`}>
+            <div className={`text-5xl p-4 rounded-xl ${documentType.color} bg-opacity-20 border border-slate-600/30`}>
               {documentType.icon}
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">{t.selectedType}</p>
-              <h3 className="text-xl font-bold text-gray-800">{documentType.name}</h3>
+              <p className="text-sm text-blue-300/70 font-medium mb-1">{t.selectedType}</p>
+              <h3 className="text-xl font-bold text-white">{documentType.name}</h3>
             </div>
           </div>
-          <Button variant="outline" onClick={onBack} className="hidden sm:flex">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 hover:border-blue-500/50 rounded-lg text-slate-200 hover:text-white font-medium transition-all"
+          >
             {t.change}
-          </Button>
+          </button>
         </div>
-      </Card>
+      </div>
 
       {/* Upload Section */}
       {!isUploading ? (
-        <Card>
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-xl">
           <FileUpload
             onFileSelect={handleFileSelect}
             acceptedFormats="image/*,.pdf"
             maxSizeInMB={10}
-            multiple={false}
           />
 
           {/* Error Display */}
           {error && (
-            <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start gap-3">
-              <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-700 font-medium">{error}</p>
+            <div className="mt-4 p-4 bg-red-900/30 border-l-4 border-red-500 rounded-lg flex items-start gap-3">
+              <AlertCircle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-red-200 font-medium">{error}</p>
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* Action Button */}
           {selectedFile && (
-            <div className="mt-6 flex gap-4">
-              <Button
+            <div className="mt-6">
+              <button
                 onClick={handleUpload}
-                icon={ChevronRight}
-                fullWidth
-                className="text-lg py-4"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 group"
               >
-                {t.analyze}
-              </Button>
+                <span>{t.analyze}</span>
+                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           )}
-        </Card>
+        </div>
       ) : (
         /* Upload Progress */
-        <Card className="text-center">
-          <div className="py-12">
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-8 shadow-xl text-center">
+          <div className="py-8">
             {/* Animated Upload Icon */}
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full mb-6 animate-pulse">
-              <Upload size={48} className="text-blue-600" />
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-blue-500/20 rounded-full mb-6 animate-pulse border-2 border-blue-500/30">
+              <Upload size={48} className="text-blue-400" />
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">{t.analyzing}</h3>
-            <p className="text-gray-600 mb-6">{t.analyzingDesc}</p>
+            <h3 className="text-2xl font-bold text-white mb-2">{t.analyzing}</h3>
+            <p className="text-blue-200/70 mb-6">{t.analyzingDesc}</p>
 
             {/* Progress Bar */}
             <div className="max-w-md mx-auto">
-              <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div className="w-full bg-slate-700/50 rounded-full h-4 overflow-hidden border border-slate-600/50">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-full transition-all duration-300 ease-out"
+                  className="bg-gradient-to-r from-blue-500 to-blue-400 h-full transition-all duration-300 ease-out shadow-lg shadow-blue-500/50"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-sm text-gray-600 mt-2 font-semibold">
+              <p className="text-sm text-blue-300 mt-3 font-semibold">
                 {uploadProgress}% Complete
               </p>
             </div>
 
             {/* File Info */}
-            <div className="mt-8 inline-flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-lg">
-              <FileCheck size={24} className="text-green-600" />
+            <div className="mt-8 inline-flex items-center gap-3 px-6 py-4 bg-slate-700/40 border border-slate-600/50 rounded-lg">
+              <FileCheck size={24} className="text-green-400" />
               <div className="text-left">
-                <p className="font-semibold text-gray-800">{selectedFile.name}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-semibold text-white">{selectedFile.name}</p>
+                <p className="text-sm text-slate-400">
                   {(selectedFile.size / 1024).toFixed(2)} KB
                 </p>
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Tips Section */}
       {!isUploading && (
-        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200">
-          <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
-            <AlertCircle size={20} className="text-blue-600" />
+        <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm border-2 border-blue-500/30 rounded-xl p-6 shadow-xl">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2 text-blue-200">
+            <AlertCircle size={20} className="text-blue-400" />
             Tips for Better Results
           </h4>
-          <ul className="space-y-2 text-sm text-gray-700">
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>Ensure the document is clear and readable</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>Upload high-quality scans or photos</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>Make sure all important text is visible</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>PDF format works best for multi-page documents</span>
-            </li>
+          <ul className="space-y-3 text-sm text-blue-100/80">
+            {t.tips.map((tip, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <span className="text-blue-400 font-bold text-lg">•</span>
+                <span className="leading-relaxed">{tip}</span>
+              </li>
+            ))}
           </ul>
-        </Card>
+        </div>
       )}
     </div>
   );
