@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Mail, Lock, Shield, ChevronRight, AlertCircle, Eye, EyeOff, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, Lock, Shield, ChevronRight, AlertCircle, Eye, EyeOff, User, Upload, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useAuthStore from '../../store/authStore';
 
 // Mock store for demonstration
 const useLanguageStore = () => ({ language: 'en' });
@@ -10,14 +12,15 @@ const SIGNUP_TRANSLATIONS = {
   en: {
     title: 'Join Legal Aid',
     subtitle: 'Create your account to get started',
-    nameLabel: 'Full Name',
-    namePlaceholder: 'Enter your full name',
+    backToHome: 'Back to Home',
+    usernameLabel: 'Username',
+    usernamePlaceholder: 'Choose a username',
     emailLabel: 'Email Address',
     emailPlaceholder: 'Enter your email',
     passwordLabel: 'Password',
     passwordPlaceholder: 'Create a password',
-    confirmPasswordLabel: 'Confirm Password',
-    confirmPasswordPlaceholder: 'Re-enter your password',
+    avatarLabel: 'Profile Picture',
+    avatarPlaceholder: 'Upload your avatar',
     signUp: 'Create Account',
     signingUp: 'Creating Account...',
     alreadyAccount: 'Already have an account?',
@@ -30,23 +33,24 @@ const SIGNUP_TRANSLATIONS = {
     reason1: 'Get personalized legal assistance',
     reason2: 'Save and track your documents',
     reason3: 'Access expert legal resources',
-    nameError: 'Please enter your full name',
+    usernameError: 'Username must be at least 3 characters',
     emailError: 'Please enter a valid email address',
     passwordError: 'Password must be at least 8 characters',
-    confirmPasswordError: 'Passwords do not match',
+    avatarError: 'Please upload a profile picture',
     passwordStrength: 'Use at least 8 characters with letters and numbers',
   },
   hi: {
     title: 'कानूनी सहायता में शामिल हों',
     subtitle: 'शुरू करने के लिए अपना खाता बनाएं',
-    nameLabel: 'पूरा नाम',
-    namePlaceholder: 'अपना पूरा नाम दर्ज करें',
+    backToHome: 'होम पर वापस जाएं',
+    usernameLabel: 'उपयोगकर्ता नाम',
+    usernamePlaceholder: 'एक उपयोगकर्ता नाम चुनें',
     emailLabel: 'ईमेल पता',
     emailPlaceholder: 'अपना ईमेल दर्ज करें',
     passwordLabel: 'पासवर्ड',
     passwordPlaceholder: 'एक पासवर्ड बनाएं',
-    confirmPasswordLabel: 'पासवर्ड की पुष्टि करें',
-    confirmPasswordPlaceholder: 'अपना पासवर्ड फिर से दर्ज करें',
+    avatarLabel: 'प्रोफ़ाइल चित्र',
+    avatarPlaceholder: 'अपना अवतार अपलोड करें',
     signUp: 'खाता बनाएं',
     signingUp: 'खाता बनाया जा रहा है...',
     alreadyAccount: 'पहले से खाता है?',
@@ -59,58 +63,31 @@ const SIGNUP_TRANSLATIONS = {
     reason1: 'व्यक्तिगत कानूनी सहायता प्राप्त करें',
     reason2: 'अपने दस्तावेज़ों को सहेजें और ट्रैक करें',
     reason3: 'विशेषज्ञ कानूनी संसाधनों तक पहुंचें',
-    nameError: 'कृपया अपना पूरा नाम दर्ज करें',
+    usernameError: 'उपयोगकर्ता नाम कम से कम 3 अक्षर का होना चाहिए',
     emailError: 'कृपया एक मान्य ईमेल पता दर्ज करें',
     passwordError: 'पासवर्ड कम से कम 8 अक्षर का होना चाहिए',
-    confirmPasswordError: 'पासवर्ड मेल नहीं खाते',
+    avatarError: 'कृपया एक प्रोफ़ाइल चित्र अपलोड करें',
     passwordStrength: 'अक्षरों और संख्याओं के साथ कम से कम 8 वर्ण उपयोग करें',
-  },
-  mr: {
-    title: 'कायदेशीर मदतीमध्ये सामील व्हा',
-    subtitle: 'सुरुवात करण्यासाठी तुमचे खाते तयार करा',
-    nameLabel: 'पूर्ण नाव',
-    namePlaceholder: 'तुमचे पूर्ण नाव प्रविष्ट करा',
-    emailLabel: 'ईमेल पत्ता',
-    emailPlaceholder: 'तुमचा ईमेल प्रविष्ट करा',
-    passwordLabel: 'पासवर्ड',
-    passwordPlaceholder: 'एक पासवर्ड तयार करा',
-    confirmPasswordLabel: 'पासवर्डची पुष्टी करा',
-    confirmPasswordPlaceholder: 'तुमचा पासवर्ड पुन्हा प्रविष्ट करा',
-    signUp: 'खाते तयार करा',
-    signingUp: 'खाते तयार करत आहे...',
-    alreadyAccount: 'आधीपासून खाते आहे?',
-    signIn: 'साइन इन करा',
-    termsPrefix: 'साइन अप करून, तुम्ही आमच्या',
-    terms: 'सेवा अटी',
-    and: 'आणि',
-    privacy: 'गोपनीयता धोरण',
-    whySignUp: 'कायदेशीर मदतीसह साइन अप का करावे?',
-    reason1: 'वैयक्तिक कायदेशीर सहाय्य मिळवा',
-    reason2: 'तुमचे दस्तऐवज जतन करा आणि ट्रॅक करा',
-    reason3: 'तज्ञ कायदेशीर संसाधने मिळवा',
-    nameError: 'कृपया तुमचे पूर्ण नाव प्रविष्ट करा',
-    emailError: 'कृपया वैध ईमेल पत्ता प्रविष्ट करा',
-    passwordError: 'पासवर्ड किमान 8 वर्णांचा असावा',
-    confirmPasswordError: 'पासवर्ड जुळत नाहीत',
-    passwordStrength: 'अक्षरे आणि संख्या असलेले किमान 8 वर्ण वापरा',
-  },
+  }
 };
 
 const SignUp = ({ onSubmit }) => {
   const { language } = useLanguageStore();
   const t = SIGNUP_TRANSLATIONS[language] || SIGNUP_TRANSLATIONS.en;
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
 
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const validateName = (name) => {
-    return name.trim().length >= 2;
+  const validateUsername = (username) => {
+    return username.trim().length >= 3;
   };
 
   const validateEmail = (email) => {
@@ -122,10 +99,10 @@ const SignUp = ({ onSubmit }) => {
     return password.length >= 8;
   };
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
-    if (errors.name) {
-      setErrors(prev => ({ ...prev, name: '' }));
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    if (errors.username) {
+      setErrors(prev => ({ ...prev, username: '' }));
     }
   };
 
@@ -141,15 +118,21 @@ const SignUp = ({ onSubmit }) => {
     if (errors.password) {
       setErrors(prev => ({ ...prev, password: '' }));
     }
-    if (errors.confirmPassword && confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: '' }));
-    }
   };
 
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-    if (errors.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: '' }));
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      if (errors.avatar) {
+        setErrors(prev => ({ ...prev, avatar: '' }));
+      }
     }
   };
 
@@ -157,8 +140,8 @@ const SignUp = ({ onSubmit }) => {
     const newErrors = {};
 
     // Validate all fields
-    if (!validateName(name)) {
-      newErrors.name = t.nameError;
+    if (!validateUsername(username)) {
+      newErrors.username = t.usernameError;
     }
     if (!validateEmail(email)) {
       newErrors.email = t.emailError;
@@ -166,8 +149,8 @@ const SignUp = ({ onSubmit }) => {
     if (!validatePassword(password)) {
       newErrors.password = t.passwordError;
     }
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = t.confirmPasswordError;
+    if (!avatar) {
+      newErrors.avatar = t.avatarError;
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -179,16 +162,65 @@ const SignUp = ({ onSubmit }) => {
     setErrors({});
 
     try {
-      // Simulate API call to create account
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create FormData to send file
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('avatar', avatar);
 
-      console.log('Creating account with:', { name, email, password: '***' });
+      // Call backend API using axios
+      const response = await axios.post(
+        'http://localhost:8000/api/v1/users/register',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
-      // Call parent callback
-      onSubmit && onSubmit({ name, email, password });
+      console.log('Registration successful:', response.data);
+
+      // Check if response contains tokens (some backends auto-login after registration)
+      if (response.data?.data?.accessToken) {
+        const { accessToken, refreshToken, user } = response.data.data;
+
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Update auth store if you have a login method
+        if (login && typeof login === 'function') {
+          login(user, accessToken);
+        }
+
+        // Navigate to dashboard if auto-logged in
+        navigate('/dashboard');
+      } else {
+        // If no tokens, just store user data and navigate to login
+        if (response.data?.data) {
+          localStorage.setItem('user', JSON.stringify(response.data.data));
+        }
+        
+        // Navigate to login page
+        navigate('/login');
+      }
+
+      // Call parent callback if provided
+      if (onSubmit) {
+        onSubmit(response.data.data);
+      }
+      
     } catch (err) {
       console.error('Error creating account:', err);
-      setErrors({ general: 'Failed to create account. Please try again.' });
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to create account. Please try again.';
+      setErrors({ general: errorMessage });
     } finally {
       setIsSigningUp(false);
     }
@@ -200,20 +232,29 @@ const SignUp = ({ onSubmit }) => {
     }
   };
 
-  const isFormValid = validateName(name) && validateEmail(email) && 
-                      validatePassword(password) && password === confirmPassword;
+  const isFormValid = validateUsername(username) && validateEmail(email) && 
+                      validatePassword(password) && avatar;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 relative overflow-hidden py-8">
-      {/* Background decoration - matching home page */}
+      {/* Background decoration */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-500 to-green-600 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
       </div>
 
+      {/* Back to Home Button - Top Left */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 bg-slate-800/80 backdrop-blur-sm hover:bg-slate-700/80 text-white rounded-lg transition-all duration-300 border border-slate-600 hover:border-slate-500 group"
+      >
+        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-medium">{t.backToHome}</span>
+      </Link>
+
       {/* Card */}
-      <div className="max-w-md w-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 p-8 relative z-10">
+      <div className="max-w-lg w-full bg-gradient-to-br my-6 from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 p-8 relative z-10 mx-4">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
@@ -227,30 +268,68 @@ const SignUp = ({ onSubmit }) => {
 
         {/* Sign Up Form */}
         <div className="space-y-4">
-          {/* Name Input */}
+          {/* Avatar Upload */}
           <div>
             <label className="block text-sm font-semibold text-slate-300 mb-2">
-              {t.nameLabel}
+              {t.avatarLabel}
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border-2 border-slate-600">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={32} className="text-slate-400" />
+                )}
+              </div>
+              <label className="flex-1 cursor-pointer">
+                <div className={`flex items-center justify-center gap-2 px-4 py-3 border-2 rounded-lg transition-all ${
+                  errors.avatar 
+                    ? 'border-red-500 bg-red-900/20 text-red-400' 
+                    : 'border-slate-600 bg-slate-800 text-slate-300 hover:border-blue-500'
+                }`}>
+                  <Upload size={18} />
+                  <span className="text-sm truncate">{avatar ? avatar.name : t.avatarPlaceholder}</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            {errors.avatar && (
+              <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle size={14} />
+                {errors.avatar}
+              </p>
+            )}
+          </div>
+
+          {/* Username Input */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
+              {t.usernameLabel}
             </label>
             <div className="relative">
               <User size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                value={name}
-                onChange={handleNameChange}
+                value={username}
+                onChange={handleUsernameChange}
                 onKeyPress={handleKeyPress}
-                placeholder={t.namePlaceholder}
+                placeholder={t.usernamePlaceholder}
                 className={`w-full h-12 pl-11 pr-4 border-2 rounded-lg outline-none transition-all text-base placeholder-slate-500 ${
-                  errors.name 
+                  errors.username 
                     ? 'border-red-500 bg-red-900/20 text-red-400 focus:ring-red-500/50' 
                     : 'border-slate-600 bg-slate-800 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50'
                 }`}
               />
             </div>
-            {errors.name && (
+            {errors.username && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
                 <AlertCircle size={14} />
-                {errors.name}
+                {errors.username}
               </p>
             )}
           </div>
@@ -318,41 +397,6 @@ const SignUp = ({ onSubmit }) => {
             )}
             {!errors.password && password.length > 0 && (
               <p className="mt-1 text-xs text-slate-400">{t.passwordStrength}</p>
-            )}
-          </div>
-
-          {/* Confirm Password Input */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-2">
-              {t.confirmPasswordLabel}
-            </label>
-            <div className="relative">
-              <Lock size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                onKeyPress={handleKeyPress}
-                placeholder={t.confirmPasswordPlaceholder}
-                className={`w-full h-12 pl-11 pr-12 border-2 rounded-lg outline-none transition-all text-base placeholder-slate-500 ${
-                  errors.confirmPassword 
-                    ? 'border-red-500 bg-red-900/20 text-red-400 focus:ring-red-500/50' 
-                    : 'border-slate-600 bg-slate-800 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50'
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <AlertCircle size={14} />
-                {errors.confirmPassword}
-              </p>
             )}
           </div>
 

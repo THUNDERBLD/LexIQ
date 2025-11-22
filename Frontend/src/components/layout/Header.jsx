@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Scale, Menu, Bell, User } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useLanguageStore } from '../../store/languageStore';
-import { useAuthStore } from '../../store/authStore';
+import useAuthStore from '../../store/authStore';
 import LanguageSelector from '../common/LanguageSelector';
 import { AudioToggle } from '../common/AudioPlayer';
 
@@ -81,19 +81,19 @@ const Header = () => {
 
             {/* Logo & App Name */}
             <Link to="/">
-            <div className="flex items-center gap-3 margin-side mx-14">
-              <div className="bg-white bg-opacity-20 rounded-lg">
-                <Scale size={32} className="text-white" />
+              <div className="flex items-center gap-3 margin-side mx-14">
+                <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                  <Scale size={32} className="text-white" />
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="text-xl md:text-2xl font-bold leading-tight">
+                    {t.appName}
+                  </h1>
+                  <p className="text-xs md:text-sm text-blue-100 hidden md:block">
+                    {t.tagline}
+                  </p>
+                </div>
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-xl md:text-2xl font-bold leading-tight">
-                  {t.appName}
-                </h1>
-                <p className="text-xs md:text-sm text-blue-100 hidden md:block">
-                  {t.tagline}
-                </p>
-              </div>
-            </div>
             </Link>
           </div>
 
@@ -114,35 +114,55 @@ const Header = () => {
               >
                 <Bell size={20} />
                 {/* Notification Badge */}
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full ring-2 ring-blue-700"></span>
+                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full ring-2 ring-2 ring-slate-900"></span>
               </button>
             )}
 
             {/* User Profile */}
             {isAuthenticated ? (
-              <button
+              <Link
+                to="/profile"
                 className="flex items-center gap-2 p-2 button-spacing hover:bg-blue-500 rounded-lg transition-colors"
                 aria-label={t.profile}
                 title={t.profile}
               >
                 <div className="hidden md:flex flex-col items-end text-right">
                   <span className="text-sm font-semibold button-spacing">
-                    {user?.name || user?.phone || 'User'}
+                    {user?.username || user?.name || user?.fullName || user?.email?.split('@')[0] || 'User'}
                   </span>
                   <span className="text-xs text-blue-200 button-spacing">
                     {t.profile}
                   </span>
                 </div>
-                <div className="bg-white bg-opacity-20 p-2 button-spacing rounded-full">
-                  <User size={20} />
+                
+                {/* User Avatar */}
+                <div className="button-spacing rounded-full ring-2 ring-blue-400 overflow-hidden w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                  {user?.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user?.username || 'User'} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to icon if image fails to load
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <User 
+                    size={20} 
+                    className="text-white" 
+                    style={{ display: user?.avatar ? 'none' : 'block' }}
+                  />
                 </div>
-              </button>
+              </Link>
             ) : (
-              <button className="hidden md:flex items-center button-spacing gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-                <Link to="/login">
-                  Login
-                </Link>
-              </button>
+              <Link 
+                to="/login"
+                className="hidden md:flex items-center button-spacing gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              >
+                Login
+              </Link>
             )}
           </div>
         </div>

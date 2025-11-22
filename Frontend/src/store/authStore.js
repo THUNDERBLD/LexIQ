@@ -1,175 +1,118 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-/**
- * Authentication Store
- * Manages user authentication state, login/logout, and user profile
- */
-
+// Create the auth store with persistence
 const useAuthStore = create(
   persist(
     (set, get) => ({
       // State
       user: null,
+      accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
-      isLoading: false,
-      error: null,
-
-      // Actions
       
-      /**
-       * Login user with phone number
-       * @param {string} phoneNumber - User's phone number
-       * @param {object} userData - Additional user data (optional)
-       */
-      login: (phoneNumber, userData = {}) => {
+      // API Base URL
+      apiBaseUrl: 'http://localhost:8000/api/v1',
+      
+      // Actions
+      setAuth: (data) => {
+        const { user, accessToken, refreshToken } = data;
+        
+        // Store tokens in localStorage
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        
+        // Update state
         set({
-          user: {
-            phone: phoneNumber,
-            name: userData.name || null,
-            email: userData.email || null,
-            avatar: userData.avatar || null,
-            joinedAt: userData.joinedAt || new Date().toISOString(),
-            ...userData,
-          },
+          user,
+          accessToken,
+          refreshToken,
           isAuthenticated: true,
-          error: null,
         });
       },
-
-      /**
-       * Logout user
-       */
+      
+      updateUser: (userData) => {
+        set({ user: userData });
+      },
+      
+      updateTokens: (accessToken, refreshToken) => {
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        
+        set({
+          accessToken,
+          refreshToken,
+        });
+      },
+      
       logout: () => {
+        // Clear localStorage - individual items
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        
+        // ✅ FIX: Clear Zustand's persisted storage
+        localStorage.removeItem('auth-storage');
+        
+        // Clear state
         set({
           user: null,
+          accessToken: null,
+          refreshToken: null,
           isAuthenticated: false,
-          error: null,
         });
       },
-
-      /**
-       * Update user profile
-       * @param {object} updates - Fields to update
-       */
-      updateProfile: (updates) => {
-        const currentUser = get().user;
-        if (currentUser) {
+      
+      // Initialize auth from localStorage
+      initializeAuth: () => {
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        const user = localStorage.getItem('user');
+        
+        if (accessToken && user) {
           set({
-            user: {
-              ...currentUser,
-              ...updates,
-            },
+            accessToken,
+            refreshToken,
+            user: JSON.parse(user),
+            isAuthenticated: true,
           });
         }
       },
-
-      /**
-       * Set loading state
-       * @param {boolean} loading - Loading state
-       */
-      setLoading: (loading) => {
-        set({ isLoading: loading });
+      
+      // Get current access token
+      getAccessToken: () => {
+        return get().accessToken || localStorage.getItem('accessToken');
       },
-
-      /**
-       * Set error
-       * @param {string} error - Error message
-       */
-      setError: (error) => {
-        set({ error });
+      
+      // Get current refresh token
+      getRefreshToken: () => {
+        return get().refreshToken || localStorage.getItem('refreshToken');
       },
-
-      /**
-       * Clear error
-       */
-      clearError: () => {
-        set({ error: null });
-      },
-
-      /**
-       * Check if user is logged in
-       * @returns {boolean}
-       */
-      isLoggedIn: () => {
-        return get().isAuthenticated;
-      },
-
-      /**
-       * Get user data
-       * @returns {object|null}
-       */
-      getUser: () => {
-        return get().user;
-      },
-
-      /**
-       * Verify OTP (mock implementation)
-       * @param {string} otp - OTP code
-       * @returns {Promise<boolean>}
-       */
-      verifyOTP: async (otp) => {
-        set({ isLoading: true, error: null });
-        
-        try {
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Mock verification - in production, call actual API
-          if (otp.length === 6) {
-            set({ isLoading: false });
-            return true;
-          } else {
-            set({ 
-              isLoading: false, 
-              error: 'Invalid OTP' 
-            });
-            return false;
-          }
-        } catch (error) {
-          set({ 
-            isLoading: false, 
-            error: error.message 
-          });
-          return false;
-        }
-      },
-
-      /**
-       * Send OTP (mock implementation)
-       * @param {string} phoneNumber - Phone number to send OTP
-       * @returns {Promise<boolean>}
-       */
-      sendOTP: async (phoneNumber) => {
-        set({ isLoading: true, error: null });
-        
-        try {
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Mock send - in production, call actual API
-          console.log('OTP sent to:', phoneNumber);
-          set({ isLoading: false });
-          return true;
-        } catch (error) {
-          set({ 
-            isLoading: false, 
-            error: error.message 
-          });
-          return false;
-        }
+      
+      // Check if user is authenticated
+      checkAuth: () => {
+        const accessToken = get().accessToken || localStorage.getItem('accessToken');
+        return !!accessToken;
       },
     }),
     {
-      name: 'auth-storage', // localStorage key
+      name: 'auth-storage', // Name for localStorage key
       partialize: (state) => ({
         user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     }
   )
 );
 
-export {
-    useAuthStore
-};
+export default useAuthStore;
