@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Mail, Lock, Shield, ChevronRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, Lock, Shield, ChevronRight, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useAuthStore from '../../store/authStore';
 
 // Mock store for demonstration
 const useLanguageStore = () => ({ language: 'en' });
@@ -10,6 +12,7 @@ const LOGIN_TRANSLATIONS = {
   en: {
     title: 'Welcome to Legal Aid',
     subtitle: 'Sign in to your account',
+    backToHome: 'Back to Home',
     emailLabel: 'Email Address',
     emailPlaceholder: 'Enter your email',
     passwordLabel: 'Password',
@@ -34,6 +37,7 @@ const LOGIN_TRANSLATIONS = {
   hi: {
     title: 'कानूनी सहायता में आपका स्वागत है',
     subtitle: 'अपने खाते में साइन इन करें',
+    backToHome: 'होम पर वापस जाएं',
     emailLabel: 'ईमेल पता',
     emailPlaceholder: 'अपना ईमेल दर्ज करें',
     passwordLabel: 'पासवर्ड',
@@ -54,36 +58,16 @@ const LOGIN_TRANSLATIONS = {
     emailError: 'कृपया एक मान्य ईमेल पता दर्ज करें',
     passwordError: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
     loginError: 'अमान्य ईमेल या पासवर्ड',
-  },
-  mr: {
-    title: 'कायदेशीर मदतीमध्ये आपले स्वागत आहे',
-    subtitle: 'तुमच्या खात्यात साइन इन करा',
-    emailLabel: 'ईमेल पत्ता',
-    emailPlaceholder: 'तुमचा ईमेल प्रविष्ट करा',
-    passwordLabel: 'पासवर्ड',
-    passwordPlaceholder: 'तुमचा पासवर्ड प्रविष्ट करा',
-    signIn: 'साइन इन करा',
-    signingIn: 'साइन इन करत आहे...',
-    forgotPassword: 'पासवर्ड विसरलात?',
-    noAccount: 'खाते नाही?',
-    signUp: 'साइन अप करा',
-    termsPrefix: 'सुरू ठेवून, तुम्ही आमच्या',
-    terms: 'सेवा अटी',
-    and: 'आणि',
-    privacy: 'गोपनीयता धोरण',
-    whyAccount: 'खाते का तयार करावे?',
-    reason1: 'कधीही तुमच्या दस्तऐवजांमध्ये प्रवेश करा',
-    reason2: 'तुमच्या केसची प्रगती ट्रॅक करा',
-    reason3: 'वैयक्तिक कायदेशीर सहाय्य मिळवा',
-    emailError: 'कृपया वैध ईमेल पत्ता प्रविष्ट करा',
-    passwordError: 'पासवर्ड किमान 6 वर्णांचा असावा',
-    loginError: 'अवैध ईमेल किंवा पासवर्ड',
-  },
+  }
 };
 
 const Login = ({ onSubmit }) => {
   const { language } = useLanguageStore();
   const t = LOGIN_TRANSLATIONS[language] || LOGIN_TRANSLATIONS.en;
+  const navigate = useNavigate();
+  
+  // ✅ FIX: Use setAuth instead of login
+  const { setAuth } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -127,16 +111,47 @@ const Login = ({ onSubmit }) => {
     setError('');
 
     try {
-      // Simulate API call to authenticate
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call backend API using axios
+      const response = await axios.post(
+        'http://localhost:8000/api/v1/users/login',
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      console.log('Logging in with:', { email, password: '***' });
+      console.log('Login successful:', response.data);
 
-      // Call parent callback
-      onSubmit && onSubmit({ email, password });
+      // Extract tokens and user from response
+      const { accessToken, refreshToken, user } = response.data.data;
+
+      // ✅ FIX: Use setAuth to update the store
+      setAuth({
+        user,
+        accessToken,
+        refreshToken,
+      });
+
+      console.log('Auth store updated successfully');
+
+      // Call parent callback if provided
+      if (onSubmit) {
+        onSubmit(response.data.data);
+      }
+
+      // Navigate to dashboard
+      navigate('/dashboard');
+      
     } catch (err) {
       console.error('Error signing in:', err);
-      setError(t.loginError);
+      const errorMessage = err.response?.data?.message || err.message || t.loginError;
+      setError(errorMessage);
     } finally {
       setIsSigningIn(false);
     }
@@ -152,15 +167,24 @@ const Login = ({ onSubmit }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 relative overflow-hidden">
-      {/* Background decoration - matching home page */}
+      {/* Background decoration */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-500 to-green-600 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
       </div>
 
+      {/* Back to Home Button - Top Left */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 bg-slate-800/80 backdrop-blur-sm hover:bg-slate-700/80 text-white rounded-lg transition-all duration-300 border border-slate-600 hover:border-slate-500 group"
+      >
+        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-medium">{t.backToHome}</span>
+      </Link>
+
       {/* Card */}
-      <div className="max-w-md w-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 p-8 relative z-10">
+      <div className="max-w-lg w-full bg-gradient-to-br my-14 from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 p-8 relative z-10 mx-4">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
@@ -253,7 +277,6 @@ const Login = ({ onSubmit }) => {
         {/* Sign Up Link */}
         <div className="text-center text-sm text-slate-400 mt-6">
           {t.noAccount}{' '}
-
           <Link to="/signup" className="text-blue-400 hover:text-blue-300 hover:underline font-semibold transition-colors">
             {t.signUp}
           </Link>

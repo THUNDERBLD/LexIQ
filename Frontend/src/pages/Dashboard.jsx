@@ -10,7 +10,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useLanguageStore } from '../store/languageStore';
-import { useAuthStore } from '../store/authStore';
+import useAuthStore from '../store/authStore';
 import { useDocumentStore } from '../store/documentStore';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';

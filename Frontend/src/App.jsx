@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from "react-router-dom";
-import { useAuthStore } from './store/authStore';
+import { useEffect } from 'react';
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import useAuthStore from './store/authStore';
 import { useUIStore } from './store/uiStore';
 
 // Layout Components
@@ -16,147 +16,86 @@ import Analysis from './pages/Analysis';
 import History from './pages/History';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
-
+import Resources from './pages/Resources';
+import Help from './pages/Help';
+import Contact from './pages/Contact';
+import Profile from './pages/Profile';
 
 // Auth Components
 import Login from './components/auth/Login';
 import SignUp from './components/auth/SignUp';
 
-// Chat Component (Floating)
+// Chat Component
 import ChatInterface from './components/chat/ChatInterface';
 
-// Utils
-import { ROUTES } from './utils/constants';
-
-const App = () => {
+/**
+ * Protected Route Wrapper
+ * Redirects to login if user is not authenticated
+ */
+const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   const { showToast } = useUIStore();
 
-  const [currentPage, setCurrentPage] = useState('home');
-  const [authStep, setAuthStep] = useState('phone'); // 'phone' or 'otp'
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [pageData, setPageData] = useState(null); // For passing data between pages
+  if (!isAuthenticated) {
+    showToast('Please login to continue', 'warning');
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+/**
+ * Auth Route Wrapper
+ * Redirects to dashboard if user is already authenticated
+ */
+const AuthRoute = ({ children }) => {
+  const { isAuthenticated } = useAuthStore();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+const App = () => {
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
 
   /**
-   * Navigate to different pages
-   * @param {string} page - Page name
-   * @param {any} data - Optional data to pass to page
+   * Check if current route is an auth route
    */
-  const handleNavigate = (page, data = null) => {
-    setCurrentPage(page);
-    setPageData(data);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  /**
-   * Handle phone number submission
-   */
-  const handlePhoneSubmit = (phone) => {
-    setPhoneNumber(phone);
-    setAuthStep('otp');
-  };
-
-  /**
-   * Handle OTP verification success
-   */
-  const handleOTPVerify = () => {
-    showToast('Login successful!', 'success');
-    setAuthStep('phone');
-    setPhoneNumber('');
-    handleNavigate('dashboard');
-  };
-
-  /**
-   * Handle OTP back button
-   */
-  const handleOTPBack = () => {
-    setAuthStep('phone');
-  };
-
-  /**
-   * Check authentication and redirect
-   */
-  useEffect(() => {
-    // Redirect to dashboard if logged in and on login page
-    if (isAuthenticated && currentPage === 'login') {
-      handleNavigate('dashboard');
-    }
-
-    // Redirect to login if not authenticated and trying to access protected pages
-    const protectedPages = ['dashboard', 'upload', 'analysis', 'history'];
-    if (!isAuthenticated && protectedPages.includes(currentPage)) {
-      showToast('Please login to continue', 'warning');
-      handleNavigate('login');
-    }
-  }, [isAuthenticated, currentPage]);
-
-  /**
-   * Render current page
-   */
-  const renderPage = () => {
-    // Authentication Pages
-    if (currentPage === 'login') {
-      if (authStep === 'phone') {
-        return <PhoneInput onSubmit={handlePhoneSubmit} />;
-      } else {
-        return (
-          <OTPLogin
-            phoneNumber={phoneNumber}
-            onVerify={handleOTPVerify}
-            onBack={handleOTPBack}
-          />
-        );
-      }
-    }
-
-    // Main Pages
-    switch (currentPage) {
-      case 'home':
-        return <Home onNavigate={handleNavigate} />;
-
-      case 'dashboard':
-        return <Dashboard onNavigate={handleNavigate} />;
-
-      case 'upload':
-        return <Upload onNavigate={handleNavigate} />;
-
-      case 'analysis':
-        return <Analysis document={pageData} onNavigate={handleNavigate} />;
-
-      case 'history':
-        return <History onNavigate={handleNavigate} />;
-
-      default:
-        return <Home onNavigate={handleNavigate} />;
-    }
-  };
-
-  /**
-   * Check if current page should show layout
-   */
-  const shouldShowLayout = () => {
-    return currentPage !== 'login';
+  const isAuthRoute = () => {
+    const authRoutes = ['/login', '/signup'];
+    return authRoutes.includes(location.pathname);
   };
 
   /**
    * Check if current page should show floating chat
    */
   const shouldShowChat = () => {
-    return isAuthenticated && ['dashboard', 'history'].includes(currentPage);
+    const chatPages = ['/dashboard', '/history', '/analysis'];
+    return isAuthenticated && chatPages.includes(location.pathname);
+  };
+
+  /**
+   * Handle chat message
+   */
+  const handleChatMessage = async (message) => {
+    // TODO: Integrate with your chat API
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return `This is a demo response to: "${message}"`;
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-
-      {/* Header */}
-      {shouldShowLayout() && <Header />}
+      {/* Header - Hide on auth routes */}
+      {!isAuthRoute() && <Header />}
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        {shouldShowLayout() && (
-          <Sidebar onNavigate={handleNavigate} />
-        )}
+        {/* Sidebar - Hide on auth routes */}
+        {!isAuthRoute() && <Sidebar />}
 
         {/* Main Content */}
         <main
@@ -164,39 +103,95 @@ const App = () => {
           className="flex-1 overflow-auto"
           role="main"
         >
-          <div className={shouldShowLayout() ? 'p-0' : ''}>
-            {/* one of the way to render the page [we will try to use this later] (alternatively could use Routes/Route)
-              {renderPage()} 
-            */}
-            <Routes>
-              <Route path="/" element={<Home onNavigate={handleNavigate} />} />
-              <Route path="/dashboard" element={<Dashboard onNavigate={handleNavigate} />} />
-              <Route path="/upload" element={<Upload onNavigate={handleNavigate} />} />
-              <Route path="/analysis" element={<Analysis document={pageData} onNavigate={handleNavigate} />} />
-              <Route path="/history" element={<History onNavigate={handleNavigate} />} />
-              <Route path="/upload" element={<Upload onNavigate={handleNavigate} />} />
-              <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
-              <Route path="/signup" element={<SignUp onNavigate={handleNavigate} />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            </Routes>
-          </div>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
+
+            {/* Auth Routes - Redirect to dashboard if authenticated */}
+            <Route 
+              path="/login" 
+              element={
+                <AuthRoute>
+                  <Login />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <AuthRoute>
+                  <SignUp />
+                </AuthRoute>
+              } 
+            />
+
+            {/* Protected Routes - Require authentication */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/upload"
+              element={
+                <ProtectedRoute>
+                  <Upload />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analysis"
+              element={
+                <ProtectedRoute>
+                  <Analysis />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <History />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 404 - Redirect to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
       </div>
 
-      {/* Footer */}
-      {shouldShowLayout() && <Footer />}
+      {/* Footer - Hide on auth routes */}
+      {!isAuthRoute() && <Footer />}
 
       {/* Floating Chat Widget */}
       {shouldShowChat() && (
-        <ChatInterface
-          floating={true}
-          onSendMessage={async (message) => {
-            // Handle chat message
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return `This is a demo response to: "${message}"`;
-          }}
-        />
+        <ChatInterface floating={true} onSendMessage={handleChatMessage} />
       )}
 
       {/* Toast Notifications */}
@@ -207,49 +202,36 @@ const App = () => {
 
 /**
  * Toast Container Component
- * Displays toast notifications
+ * Displays toast notifications with auto-dismiss
  */
 const ToastContainer = () => {
   const { toast, hideToast } = useUIStore();
 
   useEffect(() => {
     if (toast.isVisible) {
-      const timer = setTimeout(() => {
-        hideToast();
-      }, 3000);
-
+      const timer = setTimeout(hideToast, 3000);
       return () => clearTimeout(timer);
     }
-  }, [toast.isVisible]);
+  }, [toast.isVisible, hideToast]);
 
   if (!toast.isVisible) return null;
 
-  const toastStyles = {
-    success: 'bg-green-600 text-white',
-    error: 'bg-red-600 text-white',
-    warning: 'bg-yellow-600 text-white',
-    info: 'bg-blue-600 text-white',
+  const toastConfig = {
+    success: { bg: 'bg-green-600', icon: '✓' },
+    error: { bg: 'bg-red-600', icon: '✕' },
+    warning: { bg: 'bg-yellow-600', icon: '⚠' },
+    info: { bg: 'bg-blue-600', icon: 'ℹ' },
   };
 
-  const toastIcons = {
-    success: '✓',
-    error: '✕',
-    warning: '⚠',
-    info: 'ℹ',
-  };
+  const config = toastConfig[toast.type];
 
   return (
     <div className="fixed bottom-4 right-4 z-50 animate-slide-up">
       <div
-        className={`
-          ${toastStyles[toast.type]} 
-          px-6 py-4 rounded-lg shadow-2xl 
-          flex items-center gap-3 
-          min-w-[300px] max-w-md
-        `}
+        className={`${config.bg} text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 min-w-[300px] max-w-md`}
         role="alert"
       >
-        <span className="text-2xl">{toastIcons[toast.type]}</span>
+        <span className="text-2xl">{config.icon}</span>
         <p className="font-medium flex-1">{toast.message}</p>
         <button
           onClick={hideToast}
