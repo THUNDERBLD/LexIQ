@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+.vscode/
+
+dataset/
+test folder/
+
+trained_model/
+
+data.csv
+clean_data.csv
+image.png
+
+*.pt
+*.bin
+*.safetensors

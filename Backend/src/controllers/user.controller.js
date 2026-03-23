@@ -1,6 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js"
 import ApiError from "../utils/ApiError.js"
 import { User } from "../models/User.model.js"
+import { sendToML } from "../utils/mlService.js";
 import {
     DeleteOnCloudinary,
     UploadOnCloudinary
@@ -318,6 +319,31 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     );
 });
 
+const classifyDocument = async (req, res) => {
+    try {
+        console.log("REQ.FILE:", req.file);
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No file uploaded"
+            });
+        }
+
+        const fileBuffer = req.file.buffer;
+        const originalName = req.file.originalname;
+        const mlResult = await sendToML(fileBuffer, originalName);
+
+        return res.status(200).json(mlResult);
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 export {
     registerUser,
     loginUser,
@@ -326,5 +352,6 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetials,
-    updateUserAvatar
+    updateUserAvatar,
+    classifyDocument
 };
