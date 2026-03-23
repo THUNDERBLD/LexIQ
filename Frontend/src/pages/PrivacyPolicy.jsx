@@ -1,4 +1,3 @@
-import React from 'react';
 import { Shield, Lock, Eye, Database, UserCheck, FileText, AlertCircle, Mail } from 'lucide-react';
 import { useLanguageStore } from '../store/languageStore';
 import Card from '../components/common/Card';
