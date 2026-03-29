@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Search, ChevronRight, Info } from 'lucide-react';
 
-// Mock language store
-const useLanguageStore = () => ({ language: 'en' });
+import { useLanguageStore } from '../../store/languageStore';
 
 // Document Types Configuration
 const DOCUMENT_TYPES = [

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Download, Share2, CheckCircle, AlertCircle, Info, Clock } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+
 
 // Translation object
 const ANALYSIS_TRANSLATIONS = {
@@ -207,9 +209,9 @@ const Card = ({ children, title, collapsible, className = '' }) => {
 };
 
 // Legal Summary Component
-const LegalSummary = ({ summary, documentType, confidence, analyzedDate }) => {
-  const language = 'en';
+const LegalSummary = ({ summary, documentType, confidence, analyzedDate, language = 'en' }) => {
   const t = ANALYSIS_TRANSLATIONS[language];
+
   
   return (
     <Card title={t.summary} collapsible>
@@ -234,9 +236,9 @@ const LegalSummary = ({ summary, documentType, confidence, analyzedDate }) => {
 };
 
 // Key Points Component
-const KeyPoints = ({ points }) => {
-  const language = 'en';
+const KeyPoints = ({ points, language = 'en' }) => {
   const t = ANALYSIS_TRANSLATIONS[language];
+
   const [showAll, setShowAll] = useState(false);
   const displayPoints = showAll ? points : points.slice(0, 3);
   
@@ -293,9 +295,9 @@ const KeyPoints = ({ points }) => {
 };
 
 // Simple Explanation Component
-const SimpleExplanation = ({ explanation }) => {
-  const language = 'en';
+const SimpleExplanation = ({ explanation, language = 'en' }) => {
   const t = ANALYSIS_TRANSLATIONS[language];
+
   
   return (
     <Card title={t.explanation} collapsible>
@@ -311,9 +313,9 @@ const SimpleExplanation = ({ explanation }) => {
 };
 
 // Next Steps Component
-const NextSteps = ({ steps, onStepComplete }) => {
-  const language = 'en';
+const NextSteps = ({ steps, onStepComplete, language = 'en' }) => {
   const t = ANALYSIS_TRANSLATIONS[language];
+
   
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -370,9 +372,9 @@ const NextSteps = ({ steps, onStepComplete }) => {
 };
 
 // Chat Interface Component
-const ChatInterface = ({ document, onSendMessage }) => {
-  const language = 'en';
+const ChatInterface = ({ document, onSendMessage, language = 'en' }) => {
   const t = ANALYSIS_TRANSLATIONS[language];
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -438,8 +440,9 @@ const ChatInterface = ({ document, onSendMessage }) => {
 
 // Main Analysis Component
 const Analysis = () => {
-  const [language] = useState('en');
+  const { language } = useLanguageStore();
   const t = ANALYSIS_TRANSLATIONS[language];
+
 
   const document = {
     id: '123',
@@ -588,20 +591,29 @@ const Analysis = () => {
             documentType={document.documentType}
             confidence={analysis.confidence}
             analyzedDate={analysis.analyzedDate}
+            language={language}
           />
 
-          <SimpleExplanation explanation={analysis.simpleExplanation} />
+          <SimpleExplanation 
+            explanation={analysis.simpleExplanation} 
+            language={language}
+          />
 
-          <KeyPoints points={analysis.keyPoints} />
+          <KeyPoints 
+            points={analysis.keyPoints} 
+            language={language}
+          />
 
           <NextSteps
             steps={analysis.nextSteps}
             onStepComplete={handleStepComplete}
+            language={language}
           />
 
           <ChatInterface
             document={document}
             onSendMessage={handleChatMessage}
+            language={language}
           />
         </div>
 

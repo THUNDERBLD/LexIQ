@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
 
-// Mock store for demonstration
-const useLanguageStore = () => ({ language: 'en' });
+import { useLanguageStore } from '../../store/languageStore';
+
 
 // Translation object
 const SIGNUP_TRANSLATIONS = {
@@ -68,6 +68,36 @@ const SIGNUP_TRANSLATIONS = {
     passwordError: 'पासवर्ड कम से कम 8 अक्षर का होना चाहिए',
     avatarError: 'कृपया एक प्रोफ़ाइल चित्र अपलोड करें',
     passwordStrength: 'अक्षरों और संख्याओं के साथ कम से कम 8 वर्ण उपयोग करें',
+  },
+  mr: {
+    title: 'कायदेशीर मदतीत सामील व्हा',
+    subtitle: 'सुरू करण्यासाठी आपले खाते तयार करा',
+    backToHome: 'होमवर परत जा',
+    usernameLabel: 'युजरनेम',
+    usernamePlaceholder: 'एक युजरनेम निवडा',
+    emailLabel: 'ईमेल पत्ता',
+    emailPlaceholder: 'आपला ईमेल प्रविष्ट करा',
+    passwordLabel: 'पासवर्ड',
+    passwordPlaceholder: 'पासवर्ड तयार करा',
+    avatarLabel: 'प्रोफाइल चित्र',
+    avatarPlaceholder: 'आपला अवतार अपलोड करा',
+    signUp: 'खाते तयार करा',
+    signingUp: 'खाते तयार होत आहे...',
+    alreadyAccount: 'आधीच खाते आहे?',
+    signIn: 'साइन इन करा',
+    termsPrefix: 'साइन अप करून, आपण आमच्या',
+    terms: 'सेवा शर्ती',
+    and: 'आणि',
+    privacy: 'गोपनीयता धोरण',
+    whySignUp: 'कायदेशीर मदतीसह साइन अप का करावे?',
+    reason1: 'वैयक्तिक कायदेशीर मदत मिळवा',
+    reason2: 'आपले दस्तऐवज जपून ठेवा आणि मागोवा घ्या',
+    reason3: 'तज्ञ कायदेशीर संसाधनांमध्ये प्रवेश करा',
+    usernameError: 'युजरनेम किमान ३ अक्षरांचे असावे',
+    emailError: 'कृपया वैध ईमेल पत्ता प्रविष्ट करा',
+    passwordError: 'पासवर्ड किमान ८ अक्षरांचा असावा',
+    avatarError: 'कृपया प्रोफाइल चित्र अपलोड करा',
+    passwordStrength: 'अक्षरे आणि अंकांसह किमान ८ वर्ण वापरा',
   }
 };
 

@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
 
-// Mock store for demonstration
-const useLanguageStore = () => ({ language: 'en' });
+import { useLanguageStore } from '../../store/languageStore';
+
 
 // Translation object
 const LOGIN_TRANSLATIONS = {
@@ -58,6 +58,31 @@ const LOGIN_TRANSLATIONS = {
     emailError: 'कृपया एक मान्य ईमेल पता दर्ज करें',
     passwordError: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
     loginError: 'अमान्य ईमेल या पासवर्ड',
+  },
+  mr: {
+    title: 'कायदेशीर मदतीत आपले स्वागत आहे',
+    subtitle: 'आपल्या खात्यात साइन इन करा',
+    backToHome: 'होमवर परत जा',
+    emailLabel: 'ईमेल पत्ता',
+    emailPlaceholder: 'आपला ईमेल प्रविष्ट करा',
+    passwordLabel: 'पासवर्ड',
+    passwordPlaceholder: 'आपला पासवर्ड प्रविष्ट करा',
+    signIn: 'साइन इन करा',
+    signingIn: 'साइन इन होत आहे...',
+    forgotPassword: 'पासवर्ड विसरलात?',
+    noAccount: 'खाते नाही?',
+    signUp: 'साइन अप करा',
+    termsPrefix: 'सुरू ठेवून, आपण आमच्या',
+    terms: 'सेवा शर्ती',
+    and: 'आणि',
+    privacy: 'गोपनीयता धोरण',
+    whyAccount: 'खाते का तयार करावे?',
+    reason1: 'कोणत्याही वेळी आपल्या दस्तऐवजांमध्ये प्रवेश करा',
+    reason2: 'आपल्या केसच्या प्रगतीचा मागोवा घ्या',
+    reason3: 'वैयक्तिक कायदेशीर मदत मिळवा',
+    emailError: 'कृपया वैध ईमेल पत्ता प्रविष्ट करा',
+    passwordError: 'पासवर्ड किमान ६ अक्षरांचा असावा',
+    loginError: 'अवैध ईमेल किंवा पासवर्ड',
   }
 };
 
