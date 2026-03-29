@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Upload, ChevronRight, ArrowLeft, FileCheck, AlertCircle, CheckCircle } from 'lucide-react';
 
-// Mock stores
-const useLanguageStore = () => ({ language: 'en' });
-const useDocumentStore = () => ({ 
-  addDocument: (doc) => console.log('Document added:', doc) 
-});
+import { useLanguageStore } from '../../store/languageStore';
+import { useDocumentStore } from '../../store/documentStore';
+
 
 // Translation object
 const UPLOAD_TRANSLATIONS = {
@@ -29,6 +27,50 @@ const UPLOAD_TRANSLATIONS = {
       'Upload high-quality scans or photos',
       'Make sure all important text is visible',
       'PDF format works best for multi-page documents'
+    ]
+  },
+  hi: {
+    title: 'अपना दस्तावेज़ अपलोड करें',
+    description: 'AI विश्लेषण के लिए दस्तावेज़ प्रकार चुनें और फ़ाइल अपलोड करें',
+    selectedType: 'दस्तावेज़ प्रकार',
+    uploadFile: 'दस्तावेज़ अपलोड करें',
+    change: 'बदलें',
+    analyzing: 'दस्तावेज़ का विश्लेषण',
+    analyzingDesc: 'हमारा AI आपके दस्तावेज़ को प्रोसेस कर रहा है। इसमें कुछ क्षण लग सकते हैं...',
+    analyze: 'दस्तावेज़ विश्लेषण',
+    uploadSuccess: 'दस्तावेज़ सफलतापूर्वक अपलोड किया गया!',
+    back: 'चयन पर वापस जाएं',
+    dragDrop: 'यहां अपनी फ़ाइल खींचें और छोड़ें, या',
+    browse: 'ब्राउज़ करें',
+    supportedFormats: 'समर्थित प्रारूप: PDF, JPG, PNG (अधिकतम 10MB)',
+    tipsTitle: 'बेहतर परिणामों के लिए सुझाव',
+    tips: [
+      'सुनिश्चित करें कि दस्तावेज़ स्पष्ट और पठनीय है',
+      'उच्च गुणवत्ता वाले स्कैन या फ़ोटो अपलोड करें',
+      'सुनिश्चित करें कि सभी महत्वपूर्ण पाठ दृश्यमान हैं',
+      'मल्टी-पेज दस्तावेज़ों के लिए PDF प्रारूप सबसे अच्छा काम करता है'
+    ]
+  },
+  mr: {
+    title: 'तुमचे दस्तऐवज अपलोड करा',
+    description: 'AI विश्लेषणासाठी दस्तऐवज प्रकार निवडा आणि फाइल अपलोड करा',
+    selectedType: 'दस्तऐवज प्रकार',
+    uploadFile: 'दस्तऐवज अपलोड करा',
+    change: 'बदला',
+    analyzing: 'दस्तऐवजाचे विश्लेषण',
+    analyzingDesc: 'आमचा AI तुमचे दस्तऐवज प्रक्रिया करत आहे. यासाठी काही क्षण लागू शकतात...',
+    analyze: 'दस्तऐवज विश्लेषण करा',
+    uploadSuccess: 'दस्तऐवज यशस्वीरित्या अपलोड झाले!',
+    back: 'निवडीकडे परत जा',
+    dragDrop: 'तुमची फाइल येथे ड्रॅग आणि ड्रॉप करा, किंवा',
+    browse: 'ब्राउझ करा',
+    supportedFormats: 'समर्थित स्वरूप: PDF, JPG, PNG (कमाल 10MB)',
+    tipsTitle: 'उत्तम निकालांसाठी टिपा',
+    tips: [
+      'दस्तऐवज स्पष्ट आणि वाचनीय असल्याची खात्री करा',
+      'उच्च-गुणवत्तेचे स्कॅन किंवा फोटो अपलोड करा',
+      'सर्व महत्त्वाचा मजकूर दृश्यमान असल्याची खात्री करा',
+      'मल्टी-पेज दस्तऐवजांसाठी PDF स्वरूप सर्वोत्तम कार्य करते'
     ]
   },
 };

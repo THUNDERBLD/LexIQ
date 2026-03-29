@@ -17,8 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-// Mock language store
-const useLanguageStore = () => ({ language: 'en' });
+import { useLanguageStore } from '../store/languageStore';
 
 // Translation object
 const RESOURCES_TRANSLATIONS = {

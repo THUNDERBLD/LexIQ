@@ -9,10 +9,9 @@ import {
   CheckCircle,
   MessageCircle
 } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+import useAuthStore from '../store/authStore';
 
-// Mock stores and components for demonstration
-const useLanguageStore = () => ({ language: 'en' });
-const useAuthStore = () => ({ isAuthenticated: true });
 const Button = ({ children, onClick, icon: Icon, className, variant }) => (
   <button 
     onClick={onClick} 
@@ -97,6 +96,144 @@ const HOME_TRANSLATIONS = {
       title: 'Ready to Understand Your Documents?',
       subtitle: 'Join thousands of users getting legal clarity',
       button: 'Start Now - It\'s Free',
+    },
+  },
+  hi: {
+    hero: {
+      title: 'सभी के लिए कानूनी सहायता',
+      subtitle: 'AI सहायता के साथ सरल भाषा में अपने कानूनी दस्तावेजों को समझें',
+      getStarted: 'शुरू करें',
+      uploadDoc: 'दस्तावेज़ अपलोड करें',
+      learnMore: 'और जानें',
+    },
+    features: {
+      title: 'यह कैसे काम करता है',
+      subtitle: 'अपने दस्तावेजों को समझने के लिए सरल कदम',
+      steps: [
+        {
+          icon: Upload,
+          title: 'दस्तावेज़ अपलोड करें',
+          description: 'अपना कानूनी दस्तावेज़ अपलोड करें - भूमि रिकॉर्ड, एफआईआर, कोर्ट नोटिस, या कोई भी कानूनी पेपर',
+        },
+        {
+          icon: Zap,
+          title: 'AI विश्लेषण',
+          description: 'हमारा AI सेकंडों में आपके दस्तावेज़ को पढ़ता और विश्लेषण करता है',
+        },
+        {
+          icon: MessageCircle,
+          title: 'सरल स्पष्टीकरण प्राप्त करें',
+          description: 'अपनी भाषा में समझने में आसान स्पष्टीकरण प्राप्त करें',
+        },
+        {
+          icon: CheckCircle,
+          title: 'जानें कि क्या करना है',
+          description: 'अपने कानूनी मामले पर स्पष्ट अगले कदम और मार्गदर्शन प्राप्त करें',
+        },
+      ],
+    },
+    benefits: {
+      title: 'कानूनी सहायता सहायक का उपयोग क्यों करें?',
+      items: [
+        {
+          icon: Globe,
+          title: 'बहु-भाषा समर्थन',
+          description: 'हिंदी, मराठी, अंग्रेजी और 5+ भारतीय भाषाओं में उपलब्ध',
+        },
+        {
+          icon: Shield,
+          title: 'सुरक्षित और निजी',
+          description: 'आपके दस्तावेज़ एन्क्रिप्टेड हैं और कभी साझा नहीं किए जाते',
+        },
+        {
+          icon: Zap,
+          title: 'तत्काल परिणाम',
+          description: 'दिनों में नहीं, सेकंडों में दस्तावेज़ विश्लेषण प्राप्त करें',
+        },
+        {
+          icon: Users,
+          title: 'ग्रामीण भारत के लिए निर्मित',
+          description: 'कम साक्षरता वाले उपयोगकर्ताओं के लिए डिज़ाइन किया गया सरल इंटरफ़ेस',
+        },
+      ],
+    },
+    documentTypes: {
+      title: 'हम सभी कानूनी दस्तावेजों का समर्थन करते हैं',
+      subtitle: 'कोई भी कानूनी दस्तावेज़ अपलोड करें और सहायता प्राप्त करें',
+    },
+    cta: {
+      title: 'अपने दस्तावेजों को समझने के लिए तैयार हैं?',
+      subtitle: 'कानूनी स्पष्टता प्राप्त करने वाले हजारों उपयोगकर्ताओं में शामिल हों',
+      button: 'अभी शुरू करें - यह मुफ़्त है',
+    },
+  },
+  mr: {
+    hero: {
+      title: 'प्रत्येकासाठी कायदेशीर मदत',
+      subtitle: 'AI च्या मदतीने सोप्या भाषेत तुमची कायदेशीर कागदपत्रे समजून घ्या',
+      getStarted: 'सुरू करा',
+      uploadDoc: 'दस्तऐवज अपलोड करा',
+      learnMore: 'अधिक जाणून घ्या',
+    },
+    features: {
+      title: 'हे कसे कार्य करते',
+      subtitle: 'तुमची कागदपत्रे समजून घेण्यासाठी सोप्या पायऱ्या',
+      steps: [
+        {
+          icon: Upload,
+          title: 'दस्तऐवज अपलोड करा',
+          description: 'तुमचे कायदेशीर दस्तऐवज अपलोड करा - जमीन नोंदी, एफआयआर, न्यायालयीन नोटीस किंवा कोणतेही कायदेशीर कागद',
+        },
+        {
+          icon: Zap,
+          title: 'AI विश्लेषण',
+          description: 'आमचा AI सेकंदात तुमचे दस्तऐवज वाचतो आणि त्याचे विश्लेषण करतो',
+        },
+        {
+          icon: MessageCircle,
+          title: 'सोपे स्पष्टीकरण मिळवा',
+          description: 'तुमच्या भाषेत समजण्यास सोपे स्पष्टीकरण मिळवा',
+        },
+        {
+          icon: CheckCircle,
+          title: 'काय करावे ते जाणून घ्या',
+          description: 'तुमच्या कायदेशीर बाबीवर स्पष्ट पुढील पायऱ्या आणि मार्गदर्शन मिळवा',
+        },
+      ],
+    },
+    benefits: {
+      title: 'कायदेशीर मदत सहाय्यक का वापरावे?',
+      items: [
+        {
+          icon: Globe,
+          title: 'बहु-भाषा समर्थन',
+          description: 'हिंदी, मराठी, इंग्रजी आणि 5+ भारतीय भाषांमध्ये उपलब्ध',
+        },
+        {
+          icon: Shield,
+          title: 'सुरक्षित आणि खाजगी',
+          description: 'तुमची कागदपत्रे कूटबद्ध केलेली आहेत आणि कधीही सामायिक केली जात नाहीत',
+        },
+        {
+          icon: Zap,
+          title: 'झटपट निकाल',
+          description: 'काही दिवसात नाही, तर सेकंदात दस्तऐवज विश्लेषण मिळवा',
+        },
+        {
+          icon: Users,
+          title: 'ग्रामीण भारतासाठी बनवलेले',
+          description: 'कमी साक्षरता असलेल्या वापरकर्त्यांसाठी डिझाइन केलेले सोपे इंटरफेस',
+        },
+      ],
+    },
+    documentTypes: {
+      title: 'आम्ही सर्व कायदेशीर कागदपत्रांना समर्थन देतो',
+      subtitle: 'कोणतेही कायदेशीर दस्तऐवज अपलोड करा आणि मदत मिळवा',
+    },
+    cta: {
+      title: 'तुमची कायदेशीर कागदपत्रे समजून घेण्यासाठी तयार आहात?',
+      subtitle: 'कायदेशीर स्पष्टता मिळविणाऱ्या हजारो वापरकर्त्यांमध्ये सामील व्हा',
+      button: 'आता सुरू करा - हे विनामूल्य आहे',
     },
   },
 };
