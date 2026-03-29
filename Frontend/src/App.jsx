@@ -20,6 +20,7 @@ import Resources from './pages/Resources';
 import Help from './pages/Help';
 import Contact from './pages/Contact';
 import Profile from './pages/Profile';
+import GuideDetail from './pages/GuideDetail';
 
 // Auth Components
 import Login from './components/auth/Login';
@@ -159,6 +160,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Resources />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources/guide/:id"
+              element={
+                <ProtectedRoute>
+                  <GuideDetail />
                 </ProtectedRoute>
               }
             />

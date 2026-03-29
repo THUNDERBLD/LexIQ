@@ -14,10 +14,12 @@ import {
   Info,
   Youtube,
   MessageCircle,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
 import { useLanguageStore } from '../store/languageStore';
+import { LEGAL_GUIDES, VIDEO_TUTORIALS, LEGAL_AID_SERVICES, FAQ_ITEMS } from '../utils/resourcesData';
 
 // Translation object
 const RESOURCES_TRANSLATIONS = {
@@ -113,121 +115,7 @@ const RESOURCES_TRANSLATIONS = {
   }
 };
 
-// Sample data
-const LEGAL_GUIDES = [
-  {
-    id: 1,
-    title: 'How to Register Land Documents',
-    category: 'land',
-    description: 'Complete guide for land registration, stamp duty, and required documents',
-    icon: '🏡',
-    color: 'bg-green-500',
-    downloadUrl: '#',
-    readTime: '10 min'
-  },
-  {
-    id: 2,
-    title: 'Filing an FIR - Complete Process',
-    category: 'criminal',
-    description: 'Step-by-step guide to file a First Information Report',
-    icon: '👮',
-    color: 'bg-red-500',
-    downloadUrl: '#',
-    readTime: '8 min'
-  },
-  {
-    id: 3,
-    title: 'Consumer Rights & Complaints',
-    category: 'consumer',
-    description: 'Know your consumer rights and how to file complaints',
-    icon: '🛒',
-    color: 'bg-blue-500',
-    downloadUrl: '#',
-    readTime: '12 min'
-  },
-  {
-    id: 4,
-    title: 'Ration Card Application Guide',
-    category: 'government',
-    description: 'Apply for ration card - eligibility and process',
-    icon: '🍚',
-    color: 'bg-orange-500',
-    downloadUrl: '#',
-    readTime: '7 min'
-  }
-];
 
-const VIDEO_TUTORIALS = [
-  {
-    id: 1,
-    title: 'Understanding Court Notices',
-    thumbnail: '⚖️',
-    duration: '15:30',
-    views: '12K',
-    category: 'criminal',
-    videoUrl: '#'
-  },
-  {
-    id: 2,
-    title: 'Property Rights Explained',
-    thumbnail: '🏠',
-    duration: '20:15',
-    views: '8.5K',
-    category: 'land',
-    videoUrl: '#'
-  },
-  {
-    id: 3,
-    title: 'Labor Law Basics',
-    thumbnail: '👷',
-    duration: '18:45',
-    views: '6.2K',
-    category: 'labor',
-    videoUrl: '#'
-  }
-];
-
-const LEGAL_AID_SERVICES = [
-  {
-    id: 1,
-    name: 'National Legal Services Authority',
-    description: 'Free legal aid for eligible citizens',
-    phone: '1800-11-3988',
-    website: 'https://nalsa.gov.in',
-    icon: Scale
-  },
-  {
-    id: 2,
-    name: 'State Legal Aid',
-    description: 'State-level legal assistance programs',
-    phone: '1800-300-3858',
-    website: '#',
-    icon: Users
-  },
-  {
-    id: 3,
-    name: 'Women Helpline',
-    description: '24x7 support for women in distress',
-    phone: '1091',
-    website: '#',
-    icon: Phone
-  }
-];
-
-const FAQ_ITEMS = [
-  {
-    question: 'How do I apply for legal aid?',
-    answer: 'You can apply for legal aid through the National Legal Services Authority (NALSA) or State Legal Services Authority. Visit their website or nearest office with your income certificate and case details.'
-  },
-  {
-    question: 'What documents are needed for land registration?',
-    answer: 'You need the sale deed, property tax receipts, encumbrance certificate, identity proof, address proof, and PAN card of both parties.'
-  },
-  {
-    question: 'How long does court case typically take?',
-    answer: 'The duration varies based on case complexity, court load, and type of case. Civil cases may take 2-5 years, while criminal cases vary widely.'
-  }
-];
 
 const Resources = () => {
   const { language } = useLanguageStore();
@@ -353,13 +241,20 @@ const Resources = () => {
                 </p>
 
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm font-medium transition-all">
+                  <a 
+                    href={guide.downloadUrl}
+                    download
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm font-medium transition-all"
+                  >
                     <Download size={16} />
                     {t.downloadGuide}
-                  </button>
-                  <button className="p-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white transition-all">
+                  </a>
+                  <Link 
+                    to={`/resources/guide/${guide.id}`}
+                    className="p-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 hover:text-white transition-all"
+                  >
                     <ExternalLink size={16} />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
