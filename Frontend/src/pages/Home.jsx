@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useLanguageStore } from '../store/languageStore';
 import useAuthStore from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const Button = ({ children, onClick, icon: Icon, className, variant }) => (
   <button 
@@ -247,16 +248,17 @@ const DOCUMENT_TYPES = [
   { icon: '📝', name: 'Agreement', color: 'from-indigo-500 to-indigo-600' },
 ];
 
-const Home = ({ onNavigate = () => {} }) => {
+const Home = ({ onNavigate}) => {
   const { language } = useLanguageStore();
   const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
   const t = HOME_TRANSLATIONS[language] || HOME_TRANSLATIONS.en;
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
-      onNavigate('upload');
+      navigate('/upload');
     } else {
-      onNavigate('login');
+      navigate('/login');
     }
   };
 
@@ -288,7 +290,7 @@ const Home = ({ onNavigate = () => {} }) => {
                   {t.hero.getStarted}
               </Button>
               <Button
-                onClick={() => onNavigate('upload')}
+                onClick={() => navigate('/upload')}
                 variant="outline"
                 icon={Upload}
                 className="text-lg cursor-pointer button-spacing border-2 border-white bg-white/10 backdrop-blur-sm text-white hover:bg-white/20"
