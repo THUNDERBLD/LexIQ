@@ -1,4 +1,7 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
+
+
 import { 
   Upload, 
   FileText, 
@@ -197,6 +200,7 @@ const RecentDocumentCard = ({ document, onView, language }) => {
 };
 
 const Dashboard = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const { language } = useLanguageStore();
   const { user } = useAuthStore();
   const { documents } = useDocumentStore();
@@ -267,7 +271,7 @@ const Dashboard = ({ onNavigate }) => {
           <h2 className="text-2xl font-bold text-white mb-6">{t.quickActions}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
-              onClick={() => onNavigate('upload')}
+              onClick={() => navigate('/upload')}
               icon={Upload}
               className="py-4 text-lg bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/50"
               fullWidth
@@ -275,7 +279,7 @@ const Dashboard = ({ onNavigate }) => {
               {t.uploadNew}
             </Button>
             <Button
-              onClick={() => onNavigate('history')}
+              onClick={() => navigate('/history')}
               variant="secondary"
               icon={FileText}
               className="py-4 text-lg bg-slate-700 hover:bg-slate-600 text-white"
