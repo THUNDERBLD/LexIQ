@@ -198,10 +198,6 @@ const App = () => {
       {/* Footer - Hide on auth routes */}
       {!isAuthRoute() && <Footer />}
 
-      {/* Floating Chat Widget */}
-      {shouldShowChat() && (
-        <ChatInterface floating={true} onSendMessage={handleChatMessage} />
-      )}
 
       {/* Toast Notifications */}
       <ToastContainer />
