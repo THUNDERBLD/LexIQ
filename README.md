@@ -44,6 +44,8 @@ Legal Aid Assistant/
 │   │   ├── routes/     # API endpoints mapping
 │   │   └── db/         # Database connection setup
 ├── ml-service/         # Python service for AI/ML processing
+|   ├── ml_api/         # Django backend files
+|   |   ├── manage.py   # Main file to run django backend
 │   ├── ocr.py          # Optical Character Recognition logic
 │   ├── summarizer.py   # Text simplification using AI
 │   └── preprocess.py   # Document image cleaning and preparation
@@ -82,7 +84,7 @@ Legal Aid Assistant/
     ```bash
     cd ml-service
     pip install -r requirements.txt
-    python preprocess.py
+    python manage.py runserver
     ```
 
 ## 🤝 Contributing
